@@ -10,12 +10,13 @@ import MyMacrosMacros
 
 let testMacros: [String: Macro.Type] = [
     "stringify": StringifyMacro.self,
+    "EnumTitle": EnumTitleMacro.self
 ]
 #endif
 
 final class MyMacrosTests: XCTestCase {
     func testMacro() throws {
-        #if canImport(MyMacrosMacros)
+#if canImport(MyMacrosMacros)
         assertMacroExpansion(
             """
             #stringify(a + b)
@@ -25,13 +26,13 @@ final class MyMacrosTests: XCTestCase {
             """,
             macros: testMacros
         )
-        #else
+#else
         throw XCTSkip("macros are only supported when running tests for the host platform")
-        #endif
+#endif
     }
-
+    
     func testMacroWithStringLiteral() throws {
-        #if canImport(MyMacrosMacros)
+#if canImport(MyMacrosMacros)
         assertMacroExpansion(
             #"""
             #stringify("Hello, \(name)")
@@ -41,8 +42,34 @@ final class MyMacrosTests: XCTestCase {
             """#,
             macros: testMacros
         )
-        #else
+#else
         throw XCTSkip("macros are only supported when running tests for the host platform")
-        #endif
+#endif
     }
+    
+    
+    func testEnumTitleMacro() {
+#if canImport(MyMacrosMacros)
+        assertMacroExpansion("""
+            @EnumTitle
+            enum Lançamento {
+                case semente
+            }
+        """, expandedSource: """
+            enum Lançamento {
+                    case semente
+
+                    var title: String {
+                        switch self {
+                        case .semente:
+                            return "Semente"
+                        }
+                    }
+                }
+            """, macros: testMacros)
+#else
+        throw XCTSkip("macros are only supported when running tests for the host platform")
+#endif
+    }
+    
 }
