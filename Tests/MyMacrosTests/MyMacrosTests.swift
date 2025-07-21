@@ -4,19 +4,18 @@ import SwiftSyntaxMacros
 import SwiftSyntaxMacrosTestSupport
 import XCTest
 
-// Macro implementations build for the host, so the corresponding module is not available when cross-compiling. Cross-compiled tests may still make use of the macro itself in end-to-end tests.
-#if canImport(MyMacrosMacros)
 import MyMacrosMacros
 
 let testMacros: [String: Macro.Type] = [
     "stringify": StringifyMacro.self,
-    "EnumTitle": EnumTitleMacro.self
+    "EnumTitle": EnumTitleMacro.self,
+    "AddID": AddIDMacro.self,
+    "AllPublished": AllPublishedMacro.self
 ]
-#endif
 
 final class MyMacrosTests: XCTestCase {
+    
     func testMacro() throws {
-#if canImport(MyMacrosMacros)
         assertMacroExpansion(
             """
             #stringify(a + b)
@@ -26,13 +25,9 @@ final class MyMacrosTests: XCTestCase {
             """,
             macros: testMacros
         )
-#else
-        throw XCTSkip("macros are only supported when running tests for the host platform")
-#endif
     }
     
     func testMacroWithStringLiteral() throws {
-#if canImport(MyMacrosMacros)
         assertMacroExpansion(
             #"""
             #stringify("Hello, \(name)")
@@ -40,36 +35,68 @@ final class MyMacrosTests: XCTestCase {
             expandedSource: #"""
             ("Hello, \(name)", #""Hello, \(name)""#)
             """#,
-            macros: testMacros
-        )
-#else
-        throw XCTSkip("macros are only supported when running tests for the host platform")
-#endif
+            macros: testMacros)
     }
     
-    
     func testEnumTitleMacro() {
-#if canImport(MyMacrosMacros)
-        assertMacroExpansion("""
+        assertMacroExpansion(
+            """
             @EnumTitle
             enum Lançamento {
                 case semente
             }
-        """, expandedSource: """
+            """, expandedSource: """
             enum Lançamento {
-                    case semente
-
-                    var title: String {
-                        switch self {
-                        case .semente:
-                            return "Semente"
-                        }
+                case semente
+            
+                var title: String {
+                    switch self {
+                    case .semente:
+                        return "Semente"
                     }
                 }
+            }
             """, macros: testMacros)
-#else
-        throw XCTSkip("macros are only supported when running tests for the host platform")
-#endif
+    }
+    
+    func testExpansion() {
+        assertMacroExpansion(
+                """
+                @AddID
+                struct User {}
+                """,
+                expandedSource: """
+                struct User {
+                
+                    let id: UUID = UUID()
+                }
+                
+                extension User: Equatable {
+                    public static func == (lhs: User, rhs: User) -> Bool {
+                        return lhs.id == rhs.id
+                    }
+                }
+                """,
+                macros: testMacros)
+    }
+    
+    
+    func testExpansionAllPublishedMacri() {
+        assertMacroExpansion(
+                """
+                @AllPublished
+                class Example {
+                    var age: Int = 0
+                }
+                """,
+                expandedSource: """
+                class Example {
+                    @Published
+                    var age: Int = 0
+                }
+                """,
+                macros: testMacros)
     }
     
 }
+

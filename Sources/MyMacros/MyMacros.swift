@@ -16,7 +16,7 @@ public macro stringify<T>(_ value: T) -> (T, String) = #externalMacro(module: "M
 public macro EnumTitle() = #externalMacro(module: "MyMacrosMacros", type: "EnumTitleMacro")
 
 @attached(memberAttribute)
-macro AllPublished() = #externalMacro(module: "MyMacrosMacros", type: "AllPublishedMacro")
+public macro AllPublished() = #externalMacro(module: "MyMacrosMacros", type: "AllPublishedMacro")
 
 @attached(member, names: arbitrary)
 @attached(extension, conformances: Equatable, names: named(==))

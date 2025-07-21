@@ -11,3 +11,7 @@ class ExampleID {
     var num: Int = 0
 }
 
+@AllPublished
+class Example {
+    var age: Int = 0
+}
