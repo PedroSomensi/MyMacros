@@ -29,6 +29,8 @@ public struct StringifyMacro: ExpressionMacro {
 struct MyMacrosPlugin: CompilerPlugin {
     let providingMacros: [Macro.Type] = [
         StringifyMacro.self,
-        EnumTitleMacro.self
+        EnumTitleMacro.self,
+        AllPublishedMacro.self,
+        AddIDMacro.self
     ]
 }

@@ -25,7 +25,7 @@ public struct EnumTitleMacro: MemberMacro {
         
         let members = enumDecl.memberBlock.members
         let caseDecl = members.compactMap { $0.decl.as(EnumCaseDeclSyntax.self) }
-        let cases = caseDecl.compactMap { $0.elements.first?.identifier.text }
+        let cases = caseDecl.compactMap { $0.elements.first?.name.text }
         
         var title = """
         var title: String {
@@ -45,15 +45,4 @@ public struct EnumTitleMacro: MemberMacro {
         return [DeclSyntax(stringLiteral: title)]
     }
     
-}
-
-enum EnumInitError: CustomStringConvertible, Error {
-    case onlyApplicableToEnum
-    
-    var description: String {
-        switch self {
-        case .onlyApplicableToEnum:
-            "This macro can only be applied to a enum"
-        }
-    }
 }
